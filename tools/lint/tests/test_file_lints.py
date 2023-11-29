@@ -801,6 +801,40 @@ def test_invalid_meta_file():
          None),
     ]
 
+
+def test_valid_web_features_file(monkeypatch):
+    def is_file(file):
+        if file == "css/file1":
+            return True
+        return False
+    monkeypatch.setattr(os.path, "isfile", is_file)
+    code = b"""\
+features:
+- name: feature1
+  files:
+  - file1
+"""
+    errors = check_file_contents("", "css/WEB_FEATURES.yml", io.BytesIO(code))
+    check_errors(errors)
+
+    assert errors == []
+
+
+def test_invalid_web_features_file():
+    code = b"""\
+- test
+"""
+    errors = check_file_contents("", "css/WEB_FEATURES.yml", io.BytesIO(code))
+    check_errors(errors)
+
+    assert errors == [
+        ('INVALID-WEB-FEATURES-FILE',
+         'The WEB_FEATURES.yml file contains an invalid structure',
+         "css/WEB_FEATURES.yml",
+         None),
+    ]
+
+
 def test_css_missing_file_manual():
     errors = check_file_contents("", "css/foo/bar-manual.html", io.BytesIO(b""))
     check_errors(errors)
