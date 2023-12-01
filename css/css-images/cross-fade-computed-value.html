@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>cross-fade() computed value</title>
+    <link rel="author" title="Steinar H. Gunderson" href="mailto:sesse@chromium.org">
+    <link rel="help" href="https://drafts.csswg.org/css-images-4/#cross-fade-function">
+    <script src="/resources/testharness.js"></script>
+    <script src="/resources/testharnessreport.js"></script>
+    <style>
+      #d1 {
+        color: red;
+        background-image: cross-fade(30% color-mix(in srgb, currentcolor, blue), white);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="d1"></div>
+    <script>
+      test(() => {
+        let d1 = document.getElementById('d1');
+        // https://drafts.csswg.org/css-images-4/#serialization specifies that
+        // “For cross-fade(), always serialize the <percentage>.”, but it's not clear what
+        // “the” percentage is, since the implicit percentages are different for drawing and
+        // sizing, and may not be known computed-value time, so we assume one that is not
+        // given should also not be serialized.
+        assert_equals(
+          getComputedStyle(d1).backgroundImage,
+          'cross-fade(30% color(srgb 0.5 0 0.5), rgb(255, 255, 255))');
+      });
+    </script>
+  </body>
+</html>
