@@ -91,7 +91,7 @@
     @assert throws TypeError ctx.filter = new CanvasFilter({name: 'gaussianBlur'});
     @assert throws TypeError ctx.filter = new CanvasFilter({name: 'gaussianBlur', stdDeviation: undefined});
     @assert throws TypeError ctx.filter = new CanvasFilter({name: 'gaussianBlur', stdDeviation: 'foo'});
-    @assert throws TypeError ctx.filter = new CanvasFilter({name: 'gaussianBlur', stdDeviation: [1,2]});
+    @assert throws TypeError ctx.filter = new CanvasFilter({name: 'gaussianBlur', stdDeviation: [1,2,3]});
     @assert throws TypeError ctx.filter = new CanvasFilter({name: 'gaussianBlur', stdDeviation: NaN});
     @assert throws TypeError ctx.filter = new CanvasFilter({name: 'gaussianBlur', stdDeviation: {}});
 
@@ -346,6 +346,48 @@
         ctx.fillRect(0, 0, 10, 10);
         _assertPixelApprox(canvas, 5, 5, outputColor[0],outputColor[1],outputColor[2],255, 2);
     }
+
+- name: 2d.filter.canvasFilterObject.gaussianBlur.tentative
+  desc: Test CanvasFilter() blur object.
+  size: [300, 100]
+  code: |
+    // Shared X/Y coordinates
+    ctx.fillStyle = 'teal';
+    ctx.filter = new CanvasFilter({name: 'gaussianBlur',
+        stdDeviation: 4,
+    });
+    ctx.fillRect(25, 25, 50, 50);
+
+    // Blur with a stronger X component
+    ctx.filter = new CanvasFilter({name: 'gaussianBlur',
+        stdDeviation: [4, 1],
+    });
+    ctx.fillRect(125, 25, 50, 50);
+
+    // Blur with a stronger Y component
+    ctx.filter = new CanvasFilter({name: 'gaussianBlur',
+        stdDeviation: [1, 4],
+    });
+    ctx.fillRect(225, 25, 50, 50);
+  html_reference: |
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width={{ size[0] }} height={{ size[1] }}
+         color-interpolation-filters="sRGB">
+      <filter id="blur_4_4" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4" />
+      </filter>
+      <rect x="25" y="25"  width="50" height="50" fill="teal" filter="url(#blur_4_4)" />
+
+      <filter id="blur_4_1" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4 1" />
+      </filter>
+      <rect x="125" y="25" width="50" height="50" fill="teal" filter="url(#blur_4_1)" />
+
+      <filter id="blur_1_4" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="1 4" />
+      </filter>
+      <rect x="225" y="25" width="50" height="50" fill="teal" filter="url(#blur_1_4)" />
+    </svg>
 
 - name: 2d.filter.canvasFilterObject.dropShadow.tentative
   desc: Test CanvasFilter() dropShadow object.
