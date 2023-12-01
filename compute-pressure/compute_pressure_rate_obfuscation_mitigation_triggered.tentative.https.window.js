@@ -13,10 +13,11 @@ pressure_test(async (t, mockPressureService) => {
   const minPenaltyTimeInMs = 5000;
   const maxChangesThreshold = 100;
   const minChangesThreshold = 50;
+  let gotPenalty = false;
   await new Promise(async resolve => {
     const observerChanges = [];
     const observer = new PressureObserver(changes => {
-      if (observerChanges.length >= minChangesThreshold) {
+      if (observerChanges.length >= minChangesThreshold && gotPenalty == false) {
         // Add an assert to the maximum threshold possible.
         t.step(() => {
           assert_less_than_equal(observerChanges.length, maxChangesThreshold,
@@ -26,6 +27,7 @@ pressure_test(async (t, mockPressureService) => {
         if (observerChanges.length > 0) {
           const lastSample = observerChanges.at(-1);
           if ((changes[0].time - lastSample[0].time) >= minPenaltyTimeInMs) {
+            gotPenalty = true;
             observer.disconnect();
             resolve();
           }
